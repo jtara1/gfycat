@@ -1,7 +1,7 @@
 from collections import namedtuple
 
 
-class gfycat(object):
+class Gfycat(object):
 
     """
     A very simple module that allows you to
