@@ -27,9 +27,9 @@ class Gfycat(object):
         import json
         try:
             # added simple User-Ajent string to avoid CloudFlare block this request
-            headers = {'User-Agent': 'Mozilla/5.0'}
+            headers = {'User-Agent': 'gfycat submodule'}
             req = urllib.request.Request(url+param, None, headers)
-            connection = urllib.request.urlopen(req).read()
+            connection = urllib.request.urlopen(req).read().decode('utf-8')
         except urllib.error.HTTPError as err:
             raise ValueError(err.read())
         result = namedtuple("result", "raw json")
