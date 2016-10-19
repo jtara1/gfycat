@@ -20,7 +20,7 @@ class Gfycat(object):
     get_url = "http://upload.gfycat.com/transcode/"
 
     def __init__(self):
-        super(gfycat, self).__init__()
+        super(Gfycat, self).__init__()
 
     def __fetch(self, url, param):
         import urllib.request, urllib.error, urllib.parse
@@ -45,13 +45,13 @@ class Gfycat(object):
             "/transcode/%s?fetchUrl=%s" % (randomString, param))
         if "error" in result.json:
             raise ValueError("%s" % result.json["error"])
-        return _gfycatUpload(result)
+        return _GfycatUpload(result)
 
     def uploadFile(self, file):
         result = self.__fileHandler(file)
         if "error" in result.json:
             raise ValueError("%s" % result.json["error"])
-        return _gfycatUpload(result)
+        return _GfycatUpload(result)
 
     def __fileHandler(self, file):
         # Thanks thesourabh for the implementation
@@ -82,16 +82,16 @@ class Gfycat(object):
         result = self.__fetch(self.url, "/cajax/get/%s" % param)
         if "error" in result.json["gfyItem"]:
             raise ValueError("%s" % self.json["gfyItem"]["error"])
-        return _gfycatMore(result)
+        return _GfycatMore(result)
 
     def check(self, param):
         res = self.__fetch(self.url, "/cajax/checkUrl/%s" % param)
         if "error" in res.json:
             raise ValueError("%s" % self.json["error"])
-        return _gfycatCheck(res)
+        return _GfycatCheck(res)
 
 
-class _gfycatUtils(object):
+class _GfycatUtils(object):
 
     """
     A utility class that provides the necessary common
@@ -99,7 +99,7 @@ class _gfycatUtils(object):
     """
 
     def __init__(self, param, json):
-        super(_gfycatUtils, self).__init__()
+        super(_GfycatUtils, self).__init__()
         # This can be used for other functions related to this class
         self.res = param
         self.js = json
@@ -144,7 +144,7 @@ class _gfycatUtils(object):
                 raise NotImplementedError
 
 
-class _gfycatUpload(_gfycatUtils):
+class _GfycatUpload(_GfycatUtils):
 
     """
     The upload class, this will be used for uploading files
@@ -152,24 +152,34 @@ class _gfycatUpload(_gfycatUtils):
     """
 
     def __init__(self, param):
-        super(_gfycatUpload, self).__init__(param, param.json)
+        super(_GfycatUpload, self).__init__(param, param.json)
 
 
-class _gfycatMore(_gfycatUtils):
+class _GfycatMore(_GfycatUtils):
 
     """
     This class will provide more information for an existing url
     """
 
     def __init__(self, param):
-        super(_gfycatMore, self).__init__(param, param.json["gfyItem"])
+        super(_GfycatMore, self).__init__(param, param.json["gfyItem"])
 
 
-class _gfycatCheck(_gfycatUtils):
+class _GfycatCheck(_GfycatUtils):
 
     """
     This call will allow to query if a link is already known
     """
 
     def __init__(self, param):
-        super(_gfycatCheck, self).__init__(param, param.json)
+        super(_GfycatCheck, self).__init__(param, param.json)
+
+
+if __name__ == "__main__":
+    import os, time, sys
+    save_dir = os.path.join(os.getcwd(), 'my_downloads')
+    param = 'FlatClassicAstarte'
+    direct_url = 'https://giant.gfycat.com/FlatClassicAstarte.webm'
+    url = 'https://gfycat.com/FlatClassicAstarte'
+    gfycat = Gfycat().more(param).download(save_dir)
+    # gfycat.download(save_dir)
