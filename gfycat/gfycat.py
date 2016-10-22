@@ -1,4 +1,10 @@
 from collections import namedtuple
+import urllib.request, urllib.error, urllib.parse
+import json
+import random
+import string
+import requests
+from urllib.error import HTTPError
 
 
 class Gfycat(object):
@@ -23,21 +29,17 @@ class Gfycat(object):
         super(Gfycat, self).__init__()
 
     def __fetch(self, url, param):
-        import urllib.request, urllib.error, urllib.parse
-        import json
         try:
             # added simple User-Ajent string to avoid CloudFlare block this request
             headers = {'User-Agent': 'gfycat submodule'}
             req = urllib.request.Request(url+param, None, headers)
             connection = urllib.request.urlopen(req).read().decode('utf-8')
-        except urllib.error.HTTPError as err:
+        except HTTPError as err:
             raise ValueError(err.read())
         result = namedtuple("result", "raw json")
         return result(raw=connection, json=json.loads(connection))
 
     def upload(self, param):
-        import random
-        import string
         # gfycat needs to get a random string before our search parameter
         randomString = ''.join(random.choice
             (string.ascii_uppercase + string.digits) for _ in range(5))
@@ -55,9 +57,6 @@ class Gfycat(object):
 
     def __fileHandler(self, file):
         # Thanks thesourabh for the implementation
-        import random
-        import string
-        import requests
         # gfycat needs a random key before upload
         key = ''.join(random.choice
             (string.ascii_uppercase + string.digits) for _ in range(10))
@@ -80,8 +79,11 @@ class Gfycat(object):
 
     def more(self, param):
         result = self.__fetch(self.url, "/cajax/get/%s" % param)
-        if "error" in result.json["gfyItem"]:
-            raise ValueError("%s" % self.json["gfyItem"]["error"])
+        try:
+            if "error" in result.json["gfyItem"]:
+                raise ValueError("%s" % self.json["gfyItem"]["error"])
+        except (KeyError, HTTPError) as e:
+            raise HTTPError(404, 'Invalid gfycat identifier', param, None, None)
         return _GfycatMore(result)
 
     def check(self, param):
@@ -117,7 +119,6 @@ class _GfycatUtils(object):
             return ("Sorry, can't find %s" % error)
 
     def download(self, location):
-        import urllib.request, urllib.error, urllib.parse
         if not location.endswith(".mp4"):
             location = location + self.get("gfyName") + ".mp4"
         try:
@@ -136,7 +137,6 @@ class _GfycatUtils(object):
             raise ValueError(err.read())
 
     def formated(self, ignoreNull=False):
-            import json
             if not ignoreNull:
                 return json.dumps(self.js, indent=4,
                     separators=(',', ': ')).strip('{}\n')
@@ -179,7 +179,7 @@ if __name__ == "__main__":
     import os, time, sys
     save_dir = os.path.join(os.getcwd(), 'my_downloads')
     param = 'FlatClassicAstarte'
-    direct_url = 'https://giant.gfycat.com/FlatClassicAstarte.webm'
-    url = 'https://gfycat.com/FlatClassicAstarte'
-    gfycat = Gfycat().more(param).download(save_dir)
+    false_param = 'ApplesAndOranges'
+    # gfycat = Gfycat().more(param).download(save_dir)
+    gfycat = Gfycat().more(false_param).download(save_dir)
     # gfycat.download(save_dir)
