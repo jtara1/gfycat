@@ -138,7 +138,8 @@ class _GfycatUtils(object):
 
     def formated(self, ignoreNull=False):
             if not ignoreNull:
-                return json.dumps(self.js, indent=4,
+                return json.dumps(
+                    self.js, indent=4,
                     separators=(',', ': ')).strip('{}\n')
             else:
                 raise NotImplementedError
@@ -176,7 +177,7 @@ class _GfycatCheck(_GfycatUtils):
 
 
 if __name__ == "__main__":
-    import os, time, sys
+    import os
     save_dir = os.path.join(os.getcwd(), 'my_downloads')
     param = 'FlatClassicAstarte'
     false_param = 'ApplesAndOranges'
